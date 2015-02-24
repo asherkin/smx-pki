@@ -31,12 +31,14 @@ $subject->setPublicKey($pubKey);
 $x509 = new File_X509();
 $x509->setEndDate('+2 years');
 //$x509->setSerialNumber('0xDEADBEEF', 16);
-$result = $x509->sign($issuer, $subject);
+$result = $x509->sign($issuer, $subject, 'sha256WithRSAEncryption');
 
+// phpseclib requires us to reload and resign the cert to add these extensions.
 $x509->loadX509($result);
 $x509->setExtension('id-ce-keyUsage', array('digitalSignature'), true);
 $x509->setExtension('id-ce-extKeyUsage', array('id-kp-codeSigning'), true);
-$result = $x509->sign($issuer, $x509);
+$x509->setExtension('id-ce-basicConstraints', array('cA' => false), true);
+$result = $x509->sign($issuer, $x509, 'sha256WithRSAEncryption');
 
 if (!is_dir('./output/users/')) {
   mkdir('./output/users/');

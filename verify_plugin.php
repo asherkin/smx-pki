@@ -37,13 +37,17 @@ if ($sections[0]['dataoffs'] >= $header['dataoffs']) {
 
 $signature_section = substr($plugin, $sections[0]['dataoffs'], $sections[0]['size']);
 
-$certs_info = unpack('Ccount/Llength', $signature_section);
+$certs_info = unpack('Cversion/Ccount/Llength', $signature_section);
+
+if ($certs_info['version'] !== 1) {
+  throw new Exception('Bad .signature section version.');
+}
 
 if ($certs_info['count'] !== 1) {
   throw new Exception('[INCOMPLETE] Only a single signing certificate is supported.');
 }
 
-$cert = substr($signature_section, 5, $certs_info['length']);
+$cert = substr($signature_section, 6, $certs_info['length']);
 
 $signer = new File_X509();
 $signer->loadX509($cert);
@@ -57,6 +61,12 @@ echo 'Signing Certificate Valid: ' . ($signer->validateSignature() ? 'TRUE' : 'F
 
 $signature_length = $signer->getPublicKey()->getSize() / 8;
 
+$signature_info = unpack('Calgorithm', substr($signature_section, -($signature_length + 1), 1));
+
+if ($signature_info['algorithm'] !== 1) {
+  throw new Exception('Bad signature algorithm.');
+}
+
 $signature = substr($signature_section, -$signature_length);
 
 if (strlen($signature) != $signature_length) {
@@ -65,5 +75,9 @@ if (strlen($signature) != $signature_length) {
 
 $plaintext = substr_replace($plugin, str_repeat(chr(0), $signature_length), ($sections[0]['dataoffs'] + $sections[0]['size']) - $signature_length, $signature_length);
 
-echo 'Signature Valid: ' . ($signer->getPublicKey()->verify($plaintext, $signature) ? 'TRUE' : 'FALSE') . PHP_EOL;
+$pubKey = $signer->getPublicKey();
+$pubKey->setHash('sha256');
+$pubKey->setMGFHash('sha256');
+$pubKey->setSignatureMode(CRYPT_RSA_SIGNATURE_PSS);
+echo 'Signature Valid: ' . ($pubKey->verify($plaintext, $signature) ? 'TRUE' : 'FALSE') . PHP_EOL;
 

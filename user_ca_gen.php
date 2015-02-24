@@ -27,8 +27,8 @@ $subject->setPublicKey($pubKey);
 
 $x509 = new File_X509();
 $x509->makeCA();
-$x509->setEndDate('+5 years');
-$result = $x509->sign($issuer, $subject);
+$x509->setEndDate('+10 years');
+$result = $x509->sign($issuer, $subject, 'sha256WithRSAEncryption');
 
 file_put_contents('./output/user_ca.key', $keys['privatekey']);
 file_put_contents('./output/user_ca.crt', $x509->saveX509($result));

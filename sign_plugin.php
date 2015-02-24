@@ -56,8 +56,8 @@ $intermediate = $x509->saveX509($x509->loadX509(file_get_contents('./output/user
 
 $signature_length = $signcert->getPublicKey()->getSize() / 8;
 
-// certificate count, der-encoded certificates prefixed with length, hash function (1 = sha1), signature (placeholder).
-$signature_section = pack('C', 1) . (pack('L', strlen($signer)) . $signer) . /*(pack('L', strlen($intermediate)) . $intermediate) .*/ pack('C', 1) . str_repeat(chr(0), $signature_length);
+// version, certificate count, der-encoded certificates prefixed with length, signature version (1 = SHA256 RSASSA-PSS), signature (placeholder)
+$signature_section = pack('C', 1) . pack('C', 1) . (pack('L', strlen($signer)) . $signer) . /*(pack('L', strlen($intermediate)) . $intermediate) .*/ pack('C', 1) . str_repeat(chr(0), $signature_length);
 $signature_size = strlen($signature_section);
 
 //print_r(array('hash' => md5($signature_section), 'size' => $signature_size));
@@ -99,6 +99,9 @@ $data .= $compressed;
 $privKey = new Crypt_RSA();
 $privKey->loadKey(file_get_contents('./output/users/asherkin.key'));
 
+$privKey->setHash('sha256');
+$privKey->setMGFHash('sha256');
+$privKey->setSignatureMode(CRYPT_RSA_SIGNATURE_PSS);
 $signature = $privKey->sign($data);
 
 if (strlen($signature) != $signature_length) {

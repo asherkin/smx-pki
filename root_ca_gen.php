@@ -24,8 +24,8 @@ $issuer->setDN($subject->getDN());
 
 $x509 = new File_X509();
 $x509->makeCA();
-$x509->setEndDate('+10 years');
-$result = $x509->sign($issuer, $subject);
+$x509->setEndDate('+20 years');
+$result = $x509->sign($issuer, $subject, 'sha256WithRSAEncryption');
 
 if (!is_dir('./output/')) {
   mkdir('./output/');

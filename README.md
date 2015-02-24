@@ -41,3 +41,4 @@
 * `verify_plugin.php`  
   (Incomplete) Verifies the signature in the signed plugin against the author's certificate (and chain of trust).
 
+Run these scripts in this order to test the functionality.

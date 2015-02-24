@@ -57,7 +57,7 @@ $intermediate = $x509->saveX509($x509->loadX509(file_get_contents('./output/user
 $signature_length = $signcert->getPublicKey()->getSize() / 8;
 
 // version, certificate count, der-encoded certificates prefixed with length, signature version (1 = SHA256 RSASSA-PSS), signature (placeholder)
-$signature_section = pack('C', 1) . pack('C', 1) . (pack('L', strlen($signer)) . $signer) . /*(pack('L', strlen($intermediate)) . $intermediate) .*/ pack('C', 1) . str_repeat(chr(0), $signature_length);
+$signature_section = pack('CC', 0, 1) . (pack('L', strlen($signer)) . $signer) . /*(pack('L', strlen($intermediate)) . $intermediate) .*/ pack('C', 1) . str_repeat(chr(0), $signature_length);
 $signature_size = strlen($signature_section);
 
 //print_r(array('hash' => md5($signature_section), 'size' => $signature_size));

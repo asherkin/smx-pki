@@ -1,17 +1,10 @@
 #pragma semicolon 1
 
-#include <sourcemod>
+forward void main();
+native void print(const char[] string);
 
-public Plugin:myinfo = {
-	name        = "",
-	author      = "",
-	description = "",
-	version     = "0.0.0",
-	url         = ""
-};
-
-public OnPluginStart()
+public void main()
 {
-	PrintToServer("Hello, World!");
+    print("Hello, World!\n");
 }
 

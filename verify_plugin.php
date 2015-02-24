@@ -39,7 +39,7 @@ $signature_section = substr($plugin, $sections[0]['dataoffs'], $sections[0]['siz
 
 $certs_info = unpack('Cversion/Ccount/Llength', $signature_section);
 
-if ($certs_info['version'] !== 1) {
+if ($certs_info['version'] !== 0) {
   throw new Exception('Bad .signature section version.');
 }
 
